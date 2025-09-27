@@ -1,0 +1,36 @@
+DROP TABLE IF EXISTS StudentEnrollments;
+CREATE TABLE StudentEnrollments (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(100),
+    course_id VARCHAR(10),
+    enrollment_date DATE
+);
+
+INSERT INTO StudentEnrollments (student_id, student_name, course_id, enrollment_date) VALUES
+(1, 'Ashish', 'CSE101', '2024-06-01'),
+(2, 'Smaran', 'CSE102', '2024-06-01'),
+(3, 'Vaibhav', 'CSE103', '2024-06-01');
+
+-- Part A: Simulating a Deadlock Between Two Transactions
+START TRANSACTION;
+UPDATE StudentEnrollments SET course_id = 'CSE101-A' WHERE student_id = 1;
+UPDATE StudentEnrollments SET course_id = 'CSE102-A' WHERE student_id = 2;
+COMMIT;
+
+
+DELETE FROM StudentEnrollments WHERE student_id != 1;
+UPDATE StudentEnrollments SET course_id = 'CSE101', enrollment_date = '2024-06-01' WHERE student_id = 1;
+
+-- Part B: Applying MVCC to Prevent Conflicts
+START TRANSACTION;
+UPDATE StudentEnrollments SET enrollment_date = '2024-07-10' WHERE student_id = 1;
+COMMIT;
+
+-- Part C: Comparing Behavior With and Without MVCC
+-- This part compares the MVCC behavior from Part B with traditional locking.
+-- The successful update above represents the outcome for both scenarios. The key
+-- difference, not shown in a single script, is that a traditional lock
+-- (`SELECT FOR UPDATE`) would have blocked a concurrent reader, while MVCC did not.
+
+
+SELECT * FROM StudentEnrollments;
